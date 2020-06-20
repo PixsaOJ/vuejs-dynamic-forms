@@ -1,27 +1,45 @@
 <template>
 <div>
-    <keep-alive>
-        <component ref="currentStep" :is="currentStep" @update="processStep" :wizard-data="form">
+  <div v-if="wizardProgress">
+      <keep-alive>
+          <component 
+          ref="currentStep"
+          :is="currentStep"
+          @update="processStep"
+          :wizard-data="form">
 
-        </component>
-    </keep-alive>
+          </component>
+      </keep-alive>
 
-    <div class="progress-bar">
-        <div :style="`width: ${progress}%;`"></div>
-    </div>
+      <div class="progress-bar">
+          <div :style="`width: ${progress}%;`"></div>
+      </div>
 
-    <!-- Actions -->
-    <div class="buttons">
-        <button @click="goBack" v-if="currentStepNumber > 1" class="btn-outlined">Back
-        </button>
-        <button @click="goNext" :disabled="!canGoNext" class="btn">Next</button>
-    </div>
+      <!-- Actions -->
+      <div class="buttons">
+          <button @click="goBack" v-if="currentStepNumber > 1" class="btn-outlined">Back
+          </button>
+          <button @click="nextButtonAction" :disabled="!canGoNext" class="btn">{{isLastStep ? 'Complete Order' : 'Next'}}</button>
+      </div>
 
-    <pre><code>{{form}}</code></pre>
+      <pre><code>{{form}}</code></pre>
+  </div>
+
+  <div v-else>
+    <h1 class="title">Thank you!</h1>
+    <h2 class="subtitle">
+      We look forward to shipping you your first box!
+    </h2>
+
+    <p class="text-center">
+      <a href="https://vueschool.io" target="_blank" class="btn">Go Somewhere cool~!</a>
+    </p>
+  </div>
 </div>
 </template>
 
 <script>
+import postFormToDB from '../api'
 import FormPlanPicker from './FormPlanPicker'
 import FormUserDetails from './FormUserDetails'
 import FormAddress from './FormAddress'
@@ -57,12 +75,20 @@ export default {
         }
     },
     computed: {
-        currentStep() {
-            return this.steps[this.currentStepNumber - 1]
+        isLastStep() {
+          return this.currentStepNumber == this.length
+        },
+
+        wizardProgress() {
+          return this.currentStepNumber <= this.length
         },
 
         length() {
             return this.steps.length
+        },
+
+        currentStep() {
+            return this.steps[this.currentStepNumber - 1]
         },
 
         progress() {
@@ -70,7 +96,19 @@ export default {
         }
     },
     methods: {
+        submitOrder() {
+          postFormToDB(this.form)
+            .then(() => {
+              console.log('form submitted')
+              this.currentStepNumber++
+            })
+        },
 
+        nextButtonAction() {
+          if (this.isLastStep) this.submitOrder()
+          else this.goNext()
+        },
+        
         processStep(step) {
             Object.assign(this.form, step.data);
             this.canGoNext = step.valid;
