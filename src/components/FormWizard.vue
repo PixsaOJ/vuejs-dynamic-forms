@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div v-if="wizardProgress">
+  <div v-if="wizardProgress" v-show="asyncState !== 'pending'">
       <keep-alive>
           <component 
           ref="currentStep"
@@ -35,6 +35,14 @@
       <a href="https://vueschool.io" target="_blank" class="btn">Go Somewhere cool~!</a>
     </p>
   </div>
+
+  <div class="lodaing-wrapper" v-if="asyncState === 'pending'">
+    <div class="loader">
+      <img src="/spinner.svg" alt="spinner">
+      <p>Please wait, we're hitting our servers!</p>
+    </div>
+  </div>
+
 </div>
 </template>
 
@@ -55,6 +63,7 @@ export default {
     data() {
         return {
             currentStepNumber: 1,
+            asyncState: null,
             canGoNext: false,
             steps: [
                 'FormPlanPicker',
@@ -97,8 +106,10 @@ export default {
     },
     methods: {
         submitOrder() {
+          this.asyncState == 'pending'
           postFormToDB(this.form)
             .then(() => {
+              this.asyncState == 'success'
               console.log('form submitted')
               this.currentStepNumber++
             })
