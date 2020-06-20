@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import postFormToDB from '../api'
+import {postFormToDB}  from '../api'
 import FormPlanPicker from './FormPlanPicker'
 import FormUserDetails from './FormUserDetails'
 import FormAddress from './FormAddress'
