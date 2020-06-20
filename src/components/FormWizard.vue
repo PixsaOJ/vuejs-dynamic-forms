@@ -1,14 +1,10 @@
 <template>
 <div>
-    <component
+    <keep-alive>
+        <component :is="currentStep" @update="processStep" :wizard-data="form">
 
-      :is="currentStep"
-
-      @update="processStep"
-
-      :wizard-data="form">
-
-    </component>
+        </component>
+    </keep-alive>
 
     <div class="progress-bar">
         <div :style="`width: ${progress}%;`"></div>
@@ -62,11 +58,11 @@ export default {
     },
     computed: {
         currentStep() {
-          return this.steps[this.currentStepNumber-1]
+            return this.steps[this.currentStepNumber - 1]
         },
 
         length() {
-          return this.steps.length
+            return this.steps.length
         },
 
         progress() {
@@ -75,13 +71,14 @@ export default {
     },
     methods: {
 
-        processStep(stepData) {
-            Object.assign(this.form, stepData);
-            this.canGoNext = true;
+        processStep(step) {
+            Object.assign(this.form, step.data);
+            this.canGoNext = step.valid;
         },
 
         goBack() {
             this.currentStepNumber--
+            this.canGoNext = true;
         },
         goNext() {
             this.currentStepNumber++

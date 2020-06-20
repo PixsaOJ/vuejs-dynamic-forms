@@ -104,8 +104,11 @@ export default {
     methods: {
         submit() {
             this.$emit('update', {
+              data: {
                 chocolate: this.form.chocolate,
                 otherTreat: this.form.otherTreat
+              },
+              valid: true
             })
         }
     }

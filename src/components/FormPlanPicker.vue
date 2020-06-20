@@ -69,7 +69,10 @@ export default {
             this.selectedPlan = plan
 
             this.$emit("update", {
+              data: {
                 plan: this.selectedPlan
+              },
+              valid: !this.$v.$invalid
             })
         }
     }
