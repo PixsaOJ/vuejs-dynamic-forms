@@ -41,6 +41,16 @@ export default {
             }
         }
     },
+
+    // watch: {
+    //     'wizardData.name' (value) {
+    //         this.form.recipient = value
+    //     }
+    // },
+    activated() {
+        this.form.recipient = this.wizardData.name
+    },
+
     validations: {
         form: {
             address: {
