@@ -6,7 +6,7 @@
         Create an account or log in to order your liquid gold subscription
     </h2>
 
-    <form v-if="!loggedIn" class="form" @input="submit">
+    <form v-if="!loggedIn" class="form" @blur="submit">
         <div class="form-group">
             <label class="form-label" for="email">Email</label>
             <input type="text" @input="checkIfUserExists" v-model="$v.form.email.$model" placeholder="your@email.com" class="form-control" id="email">
@@ -40,7 +40,10 @@
 </template>
 
 <script>
-import {authenticateUser, checkIfUserExistsInDB}  from '../api'
+import {
+    authenticateUser,
+    checkIfUserExistsInDB
+} from '../api'
 import {
     required,
     email
@@ -85,30 +88,40 @@ export default {
     methods: {
         checkIfUserExists() {
             if (!this.$v.form.email.$invalid) {
+                this.$emit('updateAsyncState', 'pending');
                 return checkIfUserExistsInDB(this.form.email)
-                    .then( () => {
+                    .then(() => {
                         // User exists
                         this.existingUser = true;
                         this.emailCheckedInDB = true;
+                        this.$emit('updateAsyncState', 'success');
+
                     })
-                    .catch( () => {
+                    .catch(() => {
                         // User Does not exists
                         this.existingUser = false;
                         this.emailCheckedInDB = true;
+                        this.$emit('updateAsyncState', 'success');
+
                     })
             }
         },
 
         login() {
+            this.$emit('updateAsyncState', 'pending');
             this.wrongPassword = false
             return authenticateUser(this.form.email, this.form.password)
-                .then( user => {
+                .then(user => {
                     // Logged in
+                    this.$emit('updateAsyncState', 'success');
+
                     this.form.name = user.name
                     this.submit()
                 })
-                .catch( () => {
+                .catch(() => {
                     // Wrong Pass
+                    this.$emit('updateAsyncState', 'success');
+
                     this.wrongPassword = true
                 })
         },

@@ -1,53 +1,51 @@
 <template>
 <div>
-  <div v-if="wizardProgress" v-show="asyncState !== 'pending'">
-      <keep-alive>
-          <component 
-          ref="currentStep"
-          :is="currentStep"
-          @update="processStep"
-          :wizard-data="form">
+    <div v-if="wizardProgress" v-show="asyncState !== 'pending'">
+        <keep-alive>
+            <component ref="currentStep" :is="currentStep" @update="processStep" @updateAsyncState="updateAsyncState" :wizard-data="form">
 
-          </component>
-      </keep-alive>
+            </component>
+        </keep-alive>
 
-      <div class="progress-bar">
-          <div :style="`width: ${progress}%;`"></div>
-      </div>
+        <div class="progress-bar">
+            <div :style="`width: ${progress}%;`"></div>
+        </div>
 
-      <!-- Actions -->
-      <div class="buttons">
-          <button @click="goBack" v-if="currentStepNumber > 1" class="btn-outlined">Back
-          </button>
-          <button @click="nextButtonAction" :disabled="!canGoNext" class="btn">{{isLastStep ? 'Complete Order' : 'Next'}}</button>
-      </div>
+        <!-- Actions -->
+        <div class="buttons">
+            <button @click="goBack" v-if="currentStepNumber > 1" class="btn-outlined">Back
+            </button>
+            <button @click="nextButtonAction" :disabled="!canGoNext" class="btn">{{isLastStep ? 'Complete Order' : 'Next'}}</button>
+        </div>
 
-      <pre><code>{{form}}</code></pre>
-  </div>
-
-  <div v-else>
-    <h1 class="title">Thank you!</h1>
-    <h2 class="subtitle">
-      We look forward to shipping you your first box!
-    </h2>
-
-    <p class="text-center">
-      <a href="https://vueschool.io" target="_blank" class="btn">Go Somewhere cool~!</a>
-    </p>
-  </div>
-
-  <div class="lodaing-wrapper" v-if="asyncState === 'pending'">
-    <div class="loader">
-      <img src="/spinner.svg" alt="spinner">
-      <p>Please wait, we're hitting our servers!</p>
+        <pre><code>{{form}}</code></pre>
     </div>
-  </div>
+
+    <div v-else>
+        <h1 class="title">Thank you!</h1>
+        <h2 class="subtitle">
+            We look forward to shipping you your first box!
+        </h2>
+
+        <p class="text-center">
+            <a href="https://vueschool.io" target="_blank" class="btn">Go Somewhere cool~!</a>
+        </p>
+    </div>
+
+    <div class="lodaing-wrapper" v-if="asyncState === 'pending'">
+        <div class="loader">
+            <img src="/spinner.svg" alt="spinner">
+            <p>Please wait, we're hitting our servers!</p>
+        </div>
+    </div>
 
 </div>
 </template>
 
 <script>
-import {postFormToDB}  from '../api'
+import {
+    postFormToDB
+} from '../api'
 import FormPlanPicker from './FormPlanPicker'
 import FormUserDetails from './FormUserDetails'
 import FormAddress from './FormAddress'
@@ -85,11 +83,11 @@ export default {
     },
     computed: {
         isLastStep() {
-          return this.currentStepNumber == this.length
+            return this.currentStepNumber == this.length
         },
 
         wizardProgress() {
-          return this.currentStepNumber <= this.length
+            return this.currentStepNumber <= this.length
         },
 
         length() {
@@ -105,21 +103,24 @@ export default {
         }
     },
     methods: {
+        updateAsyncState(state) {
+          this.asyncState = state
+        },
         submitOrder() {
-          this.asyncState == 'pending'
-          postFormToDB(this.form)
-            .then(() => {
-              this.asyncState == 'success'
-              console.log('form submitted')
-              this.currentStepNumber++
-            })
+            this.asyncState == 'pending'
+            postFormToDB(this.form)
+                .then(() => {
+                    this.asyncState == 'success'
+                    console.log('form submitted')
+                    this.currentStepNumber++
+                })
         },
 
         nextButtonAction() {
-          if (this.isLastStep) this.submitOrder()
-          else this.goNext()
+            if (this.isLastStep) this.submitOrder()
+            else this.goNext()
         },
-        
+
         processStep(step) {
             Object.assign(this.form, step.data);
             this.canGoNext = step.valid;
@@ -133,8 +134,8 @@ export default {
             this.currentStepNumber++
             // this.canGoNext = false
             this.$nextTick(() => {
-              this.canGoNext = !this.$refs.currentStep.$v.$invalid
-              // this.$refs.currentStep.submit()
+                this.canGoNext = !this.$refs.currentStep.$v.$invalid
+                // this.$refs.currentStep.submit()
             })
         }
     }
